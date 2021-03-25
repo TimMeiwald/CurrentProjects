@@ -11,15 +11,32 @@ from EBNFParser_ver2 import EBNFParser
 class EBNFParserGenerator():
     
     def __init__(self,Path,GrammarFile):
-        self.IndentLevel, self.Offset = 0, 1
+        self.IndentLevel, self.Offset, self.PositionOffset = 0, 0, 1
+        self.Temp = ""
+        self.ResultString = ""
         self.RulesList = []
+        self.fileHandler =  self.OpenFile(Path, "ParsedGrammar.py")
         x = self.GetParsedGrammar(Path,GrammarFile)
         TokenStream = x[0]
         self.Dict_KeyToValue = x[1]
         self.Dict_ValueToKey = x[2]
         Rules = self.SplitRules(TokenStream)
         Rules = self.ParseRules(Rules)
-        
+        self.CloseFile()
+    
+    def OpenFile(self,Path,File):
+        try:
+            fileHandler = open(Path + File, "w")
+            return fileHandler
+        except:
+            raise Exception("Failed to open file, check path and file")
+    
+    def CloseFile(self):
+        try:
+            self.fileHandler.close()
+            return 0
+        except:
+            raise Exception("Could not successfully close file")
         
     def GetParsedGrammar(self, Path, GrammarFile):
         TokenList = "EBNFTokenList.txt"
@@ -60,10 +77,14 @@ class EBNFParserGenerator():
             #So parsing has to complete in correvt order which in EBNF
             #Also enforces correct read order if EBNF correct
             try:
+                self.IdentLevel, self.Offset,self.PositionOffset = 0, 0, 1
+                self.EndString = "return True"
+                self.ResultString = ""
                 self.ParseRule(Rules[i])
                 self.RulesList.append(self.CurrentVar)
                 print("Successfully created rule: {}".format(self.CurrentVar))
                 TrueCount += 1
+                self.fileHandler.write(self.ResultString)
             except ValueError:
                 FalseCount += 1
             except:
@@ -80,25 +101,52 @@ class EBNFParserGenerator():
         
     
     def Consts(self,TokenVal):
-        self.PrintIndented("if(Token == {})".format(TokenVal))
+        self.WriteToResultStringIndented("if(TokenList[{}] == {}):".format(self.IdentLevel-self.PositionOffset,TokenVal))
         
     def Ops(self,TokenVal):
+        #print(self.Offset, self.IdentLevel)
         if(TokenVal == 12): #12 is | or OR
             # Returns to function level indentation on or, unless offset has
             #been modified by e.g {} which indicates a repetition aka for loop
             self.IdentLevel += 1
-            self.PrintIndented("return True")
+            self.WriteToResultStringIndented("{}".format(self.EndString))
             self.IdentLevel -= 1
-            self.IdentLevel = self.Offset
+            self.IdentLevel = self.Offset +1
         if(TokenVal == 9): #9 is , which is concat
             # if , then it means first token followed by second token etc
             #so by changing Identlevel we schain the if statements
             self.IdentLevel += 1
         if(TokenVal == 6): #6 is ;, aka end of statement
+            if(self.Temp != 3 and TokenVal == 6):
+                 self.IdentLevel += 1
+                 self.WriteToResultStringIndented("{}".format(self.EndString))
+                 self.IdentLevel = 1
+                 self.WriteToResultStringIndented("return False")
+            else:
+                 self.IdentLevel += 1
+                 self.WriteToResultStringIndented("Flag = True \n{}continue".format(self.Indent()))
+                 self.IdentLevel -= 1
+                 self.WriteToResultStringIndented("Flag = False")
+                 
+                 self.IdentLevel = 1
+                 self.WriteToResultStringIndented("return False".format(self.EndString))
+                 
+        if(TokenVal == 2): #2 is { opening repetition
+            self.PositionOffset += 1
+            self.WriteToResultStringIndented("Flag = True")
+            self.WriteToResultStringIndented("while(Flag == True):".format(self.IdentLevel-self.PositionOffset))
+            self.Offset = self.IdentLevel 
             self.IdentLevel += 1
-            self.PrintIndented("return True")
-            self.IdentLevel = 1
-            self.PrintIndented("return False")
+            self.WriteToResultStringIndented("Flag = False")
+            self.EndString = "Flag = True \n{}    continue".format(self.Indent())
+
+        if(TokenVal == 3): #3 is } closing repetition 
+            self.EndString = "return True"
+            self.Offset = 0
+            self.PositionOffset = self.Offset + 1
+        self.Temp = TokenVal
+        #need to do [] and other stuff in ISO/IEC 14977
+            
             
             
     def Vars(self,TokenVal):
@@ -106,9 +154,10 @@ class EBNFParserGenerator():
             print("Undefined Variable: '{}' in Rule_{}".format(TokenVal,self.CurrentVar))
             raise ValueError("Undefined Variable")
             
-        self.PrintIndented("if(Rule_{}(Token) == True)".format(TokenVal))
+        self.WriteToResultStringIndented("if(Rule_{}(TokenList[{}]) == True):".format(TokenVal,self.IdentLevel-self.PositionOffset))
     
     def Tokens(self,Token):
+        #print("IdentLevel", self.IdentLevel)
         TokenType, TokenVal = Token[0],Token[1]
         if(TokenType == "CONST"):
             self.Consts(TokenVal)
@@ -128,22 +177,30 @@ class EBNFParserGenerator():
 
 
     def Start(self,Rule):
-        self.Offset = 1
-        self.IdentLevel = 0
         self.CurrentVar = ""
         if(Rule[0][0] == "VAR" and Rule[1][0] == "OP" and Rule[1][1] == 11):
-            self.PrintIndented("\ndef Rule_{}(Token):".format(Rule[0][1]))
-            self.IdentLevel += 1
+            
             self.CurrentVar = Rule[0][1]
             if(self.CurrentVar in self.RulesList):
                 print("Rule_{} has already been created".format(self.CurrentVar))
                 raise ValueError
+            self.WriteToResultStringIndented("\ndef Rule_{}(TokenList):".format(Rule[0][1]))
+            self.IdentLevel += 1
             return Rule[2:]
         else:
             raise Exception("Input is flawed in EBNFParserGenerator")
             
     def PrintIndented(self, String):
         print("{}{}".format(self.Indent(),String))
+        
+    def WriteToResultStringIndented(self,String):
+        debug = True
+        if(debug == True):
+            print("{}{}".format(self.Indent(),String))
+        else:  
+             String = "\n{}{}".format(self.Indent(),String)
+             self.ResultString += String
+
 
     def Indent(self):
         return " "*self.IdentLevel*4
@@ -153,4 +210,3 @@ class EBNFParserGenerator():
 Path = "/home/tim/Documents/CurrentProjects/Compiler/C_Parser/C_Scanner/EBNF/"
 GrammarFile = "EBNFTest.txt"
 x = EBNFParserGenerator(Path,GrammarFile)
-print(x.Dict_KeyToValue)
