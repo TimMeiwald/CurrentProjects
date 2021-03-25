@@ -107,7 +107,7 @@ class EBNFParserGenerator():
             self.IdentLevel += 1
             self.Offset += 2
         if(x[1] == 3): #3 is }
-            print("{}Flag_0 = Flag_{}".format(self.Ident(),self.RulePosition+1))
+            print("{}Flag_0 = True".format(self.Ident(),self.Offset))
             self.Offset -= 2
             self.IdentLevel -= 1
         
@@ -133,7 +133,7 @@ class EBNFParserGenerator():
     def Ident(self):
         return " "*self.IdentLevel*4
         
-Path = "/home/tim/Documents/Python Scripts/C_Compiler/C_Parser/C_Scanner/EBNF/"
+Path = "/home/tim/Documents/CurrentProjects/Compiler/C_Parser/C_Scanner/EBNF/"
 GrammarFile = "EBNFTest.txt"
 
 x = EBNFParserGenerator(Path,GrammarFile)

@@ -222,6 +222,7 @@ class EBNFParser():
                 self.ParsedGrammar.append(("OP",self.Dict_KeyToValue[b"="]))
                 if(self.Rhs(TokenList[2:-1]) == 0):
                     if(TokenList[-1] == EndChr):
+                        self.ParsedGrammar.append(("OP",TokenList[-1]))
                         print("END RULE \n")
                         self.ParsedGrammar.append("END RULE")
                         return 0
