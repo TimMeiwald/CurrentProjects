@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Mar  7 14:37:14 2021
+
+@author: tim
+"""
+import StandardScanner_pipeVer2 as Scanner
+
+class Parser():
+    
+    def __init__(self,Path,File,List):
+        self.Scanner = Scanner.Scanner(Path,File,List)
+        self.Dict_KeyToValue, self.Dict_ValueToKey = self.Scanner.Dict_KeyToValue, self.Scanner.Dict_ValueToKey
+        print(self.Dict_KeyToValue)
+        self.ParseTree = self.Parse()
+        self.Scanner.CloseFile()
+        
+    def Parse(self):
+        Token = b""
+        while Token != b"EOF":
+            Token = self.Scanner.GetToken()
+            Token = self.Preprocessor(Token)
+            Token = self.Types(Token)
+            
+            print(Token)
+        ParseTree = b""
+        return ParseTree
+        
+    def Preprocessor(self,Token):
+        if(Token == self.Dict_KeyToValue[b"#"]):
+            Token = self.Scanner.GetToken()
+            print(Token)
+            if(Token == self.Dict_KeyToValue[b"include"]):
+                Token = self.Scanner.GetToken()
+                Token = self.Scanner.GetToken()
+                print(Token)
+                if(Token == self.Dict_KeyToValue[b"<"]):
+                    Token = self.Scanner.GetToken()
+                    NextToken = self.Scanner.GetToken()
+                    if(type(Token) == bytes and self.Dict_KeyToValue[b">"] == NextToken):
+                        print("PREPROCESSOR: PREPEND SYSTEM FILE: {}".format(Token))
+                        return NextToken
+                    else:
+                        raise Exception("Invalid Preprocessor Directive1")
+                else:
+                    raise Exception("Invalid Preprocessor Directive2")
+            else:
+                raise Exception("Invalid Preprocessor Directive3")
+        else:
+            return Token
+            
+        
+    def Types(self,Token):
+        types = [self.Dict_KeyToValue[b"int"],
+                 self.Dict_KeyToValue[b"double"],
+                 self.Dict_KeyToValue[b"float"],
+                 self.Dict_KeyToValue[b"short"],
+                 self.Dict_KeyToValue[b"const"]]
+        if(Token in types):
+            Token = self.Scanner.GetToken()
+            VarName = self.Scanner.GetToken()
+            Token = self.GetToken()
+            if(Token != self.Dict_KeyToValue[b"="]):
+                raise Exception("Invalid Assignment")
+                
+            print("PUSH: Token,{}".format(Token))
+            return Token
+        else:
+            return Token
+            
+        
+        
+        
+Path = "/home/tim/Documents/Python Scripts/C_Compiler/C_Parser/C_Scanner/"
+List = "List.txt"
+File = "HelloWorld.c"
+x = Parser(Path,File,List)

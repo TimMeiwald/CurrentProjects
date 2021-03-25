@@ -1,0 +1,43 @@
+SCANNER GENERATOR DOCUMENTATION
+
+Everything before EOL is ignored to allow for documentation
+
+RESERVED FOR SCANNER GENERATOR
+NEWLINE
+WHITESPACE
+EOL
+OPEN
+CLOSE
+INDENT
+STRINGS
+COMMENTS
+MULTILINECOMMENTS
+KEYWORDS
+OPERATORS
+TERMINATION
+Comments and Strings must be defined in order to avoid tokenizing the substrings
+of strings or comments that match operators or keywords as operators or keywords
+
+EOL- Despite name is the statement seperator, in C that's NEWLINE
+In other language it could be : or ; or something else. 
+
+WHITESPACE also reserved because it's a pain otherwise
+WHITESPACE = -1 in Dict
+NEWLINE = -2
+OPEN - Opening characters for something
+CLOSE - Closing characters for something
+
+INDENT - Indentation value e.g in C OPEN{ CLOSE}, Python OPEN "\n    " CLOSE EOL
+STRINGS - Followed by OPEN and CLOSE describing string open and close chars
+COMMENTS - Followed by OPEN and CLOSE describing string open and close chars
+MULTILINECOMMENTS -Followed by OPEN and CLOSE describing string open and close chars
+KEYWORDS - All Keywords used by language
+OPERATORS - All operators used by language, for something like sizeof()
+define sizeof( as an operator and ) as an operator. punctuation e.g ; is 
+also an operator since it provides context to the parser it is an operator
+in the language sense albeit not in the programmatical sense
+TERMINATION - Used merely to make scanner generator easier to code
+NOTE: Some operators such as & for pointers and & for bitwise in C are context sensitive
+This scanner ONLY does context free grammer so & in C only needs to be added to
+OPERATOR list once. 
+

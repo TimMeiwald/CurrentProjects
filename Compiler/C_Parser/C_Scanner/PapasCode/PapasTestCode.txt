@@ -1,0 +1,70 @@
+MODULE test:
+
+
+
+CONST
+    s = "Literal String";
+
+TYPE
+    tArray0   = [10] int;              /* array of 10 integers */
+    tArray1   = []int;                   /* array of ? integers */
+    tPointer = ^tArray;
+    tUnion   = (  
+                  int   : b,c;
+                  tArray: a;
+               );
+
+    tClass0  = ^^(
+                  int   : b,c;
+               );
+
+    tClass1  = ^^((tClass0);
+                  int   : d,e;
+               );
+VAR
+    int: i,j,k;
+    char: c,s;
+    tarray: array;
+
+PROCEDURE proc0():
+{
+  i=array[i+j];
+  i=j+k;
+} proc0;
+
+PROCEDURE proc1(int: i,j;int: k):
+{
+  i=j+k;
+} proc1;
+
+PROCEDURE (int: r)proc2(int: i,j;int: k):
+{
+  r=i*j+k;
+} proc2;
+
+PROCEDURE [tClass0:cn]proc0():
+{
+  i=cn.b;
+  i=j+k;
+} proc0;
+
+PROCEDURE [tClass0:cn]proc1(int: i,j;int: k):
+{
+  i=j+k;
+} proc1;
+
+PROCEDURE (int: r)[tClass1:cn]proc2(int: i,j;int: k):
+{
+  r=j+k;
+} proc2;
+
+{
+
+  proc0();
+  proc1(i,j,k);
+  i=proc2(i,j,k);
+
+  i="Hallo Tim";
+
+} test.
+
