@@ -12,6 +12,7 @@ class EBNFParserGenerator():
     def __init__(self,Path,GrammarFile):
         self.VarNames = []
         self.IndentLevel = 0
+        self.Scope = 1
         self.Commas = 0
         self.Count = -1
         self.x = self.GetScannedGrammar(Path,GrammarFile)
@@ -43,6 +44,7 @@ class EBNFParserGenerator():
             End += 1    
         
         for i in Rules:
+            self.Scope = 1
             self.IndentLevel = 0
             self.Commas = 0
             self.ParseRule(i)
@@ -75,10 +77,10 @@ class EBNFParserGenerator():
                 self.Commas = 0
                 self.IndentLevel += 1
                 self.WriteToResultStringIndented("return True")
-                self.IndentLevel = 1
-                
-        
-        
+                self.IndentLevel = self.Scope
+        #########################################################
+        # HANDLE REPETITION, SOMEHOW RECURSION OR SPLIT INTO BNF#
+        #########################################################
     def StartRule(self,Rule):
         if(Rule[0][0] == "VAR" and Rule[1] == ("OP",11)):
             self.WriteToResultStringIndented("\ndef Rule_{}(Tokens):".format(Rule[0][1]))

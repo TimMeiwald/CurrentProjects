@@ -158,7 +158,7 @@ class EBNFParserGenerator():
             
         self.WriteToResultStringIndented("if(Rule_{}(TokenList[{}]) == True):".format(TokenVal,self.IdentLevel-self.PositionOffset))
     
-    def Tokens(self,Token):print(i)
+    def Tokens(self,Token):
         #print("IdentLevel", self.IdentLevel)
         TokenType, TokenVal = Token[0],Token[1]
         if(TokenType == "CONST"):
