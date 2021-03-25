@@ -16,10 +16,11 @@ class EBNFParserGenerator():
         self.ResultString = ""
         self.RulesList = []
         self.fileHandler =  self.OpenFile(Path, "ParsedGrammar.py")
-        x = self.GetParsedGrammar(Path,GrammarFile)
-        TokenStream = x[0]
-        self.Dict_KeyToValue = x[1]
-        self.Dict_ValueToKey = x[2]
+        self.x = self.GetParsedGrammar(Path,GrammarFile)
+        self.Tokenstream = self.x[0]
+        TokenStream = self.x[0]
+        self.Dict_KeyToValue = self.x[1]
+        self.Dict_ValueToKey = self.x[2]
         Rules = self.SplitRules(TokenStream)
         Rules = self.ParseRules(Rules)
         self.CloseFile()
@@ -125,8 +126,7 @@ class EBNFParserGenerator():
             else:
                  self.IdentLevel += 1
                  self.WriteToResultStringIndented("Flag = True \n{}continue".format(self.Indent()))
-                 self.IdentLevel -= 1
-                 self.WriteToResultStringIndented("Flag = False")
+
                  
                  self.IdentLevel = 1
                  self.WriteToResultStringIndented("return False".format(self.EndString))
@@ -141,9 +141,11 @@ class EBNFParserGenerator():
             self.EndString = "Flag = True \n{}    continue".format(self.Indent())
 
         if(TokenVal == 3): #3 is } closing repetition 
+            self.WriteToResultStringIndented("Flag = True")
             self.EndString = "return True"
+            self.IdentLevel -= 2
+            self.PositionOffset = 1
             self.Offset = 0
-            self.PositionOffset = self.Offset + 1
         self.Temp = TokenVal
         #need to do [] and other stuff in ISO/IEC 14977
             
@@ -156,7 +158,7 @@ class EBNFParserGenerator():
             
         self.WriteToResultStringIndented("if(Rule_{}(TokenList[{}]) == True):".format(TokenVal,self.IdentLevel-self.PositionOffset))
     
-    def Tokens(self,Token):
+    def Tokens(self,Token):print(i)
         #print("IdentLevel", self.IdentLevel)
         TokenType, TokenVal = Token[0],Token[1]
         if(TokenType == "CONST"):

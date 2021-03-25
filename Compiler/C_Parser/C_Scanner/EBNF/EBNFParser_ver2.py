@@ -259,10 +259,10 @@ class EBNFParser():
                 raise Exception("Grammatical Errors in Rule")
         return "\nGrammar is syntactically correct"
 
-#Path = "/home/tim/Documents/Python Scripts/C_Compiler/C_Parser/C_Scanner/EBNF/"
-#GrammarFile = "EBNFTest.txt"
-#TokenList = "EBNFTokenList.txt"
-#x = EBNFParser(Path,GrammarFile,TokenList)
+Path = "/home/tim/Documents/CurrentProjects/Compiler/C_Parser/C_Scanner/EBNF/"
+GrammarFile = "EBNFTest.txt"
+TokenList = "EBNFTokenList.txt"
+x = EBNFParser(Path,GrammarFile,TokenList)
 #y = x.GrammarFile
 #print(x.Rule(x.GrammarFile[0:106]))
 #print(x.Grammar(x.GrammarFile))

@@ -1,0 +1,195 @@
+START RULE
+VAR  : terminal
+OP   : =
+CONST: "'"
+OP   : 9
+VAR  : character
+OP   : 9
+OP   : 2
+VAR  : character
+OP   : 3
+OP   : 9
+CONST: "'"
+OP   : 12
+CONST: '"'
+OP   : 9
+VAR  : character
+OP   : 9
+OP   : 2
+VAR  : character
+OP   : 3
+OP   : 9
+CONST: '"'
+END RULE 
+
+START RULE
+VAR  : lhs
+OP   : =
+VAR  : identifier
+END RULE 
+
+START RULE
+VAR  : rhs
+OP   : =
+VAR  : identifier
+OP   : 12
+VAR  : terminal
+OP   : 12
+CONST: "["
+OP   : 9
+VAR  : rhs
+OP   : 9
+CONST: "]"
+OP   : 12
+CONST: "{"
+OP   : 9
+VAR  : rhs
+OP   : 9
+CONST: "}"
+OP   : 12
+CONST: "("
+OP   : 9
+VAR  : rhs
+OP   : 9
+CONST: ")"
+OP   : 12
+VAR  : rhs
+OP   : 9
+CONST: "|"
+OP   : 9
+VAR  : rhs
+OP   : 12
+VAR  : rhs
+OP   : 9
+CONST: ","
+OP   : 9
+VAR  : rhs
+END RULE 
+
+START RULE
+VAR  : rule
+OP   : =
+VAR  : lhs
+OP   : 9
+CONST: "="
+OP   : 9
+VAR  : rhs
+OP   : 9
+CONST: ";"
+END RULE 
+
+START RULE
+VAR  : grammar
+OP   : =
+OP   : 2
+VAR  : rule
+OP   : 3
+END RULE 
+
+START RULE
+VAR  : letter
+OP   : =
+CONST: "A"
+OP   : 12
+CONST: "B"
+OP   : 12
+CONST: "C"
+OP   : 12
+CONST: "D"
+OP   : 12
+CONST: "E"
+OP   : 12
+CONST: "F"
+OP   : 12
+CONST: "G"
+OP   : 12
+CONST: "H"
+OP   : 12
+CONST: "I"
+OP   : 12
+CONST: "J"
+OP   : 12
+CONST: "K"
+OP   : 12
+CONST: "L"
+OP   : 12
+CONST: "M"
+OP   : 12
+CONST: "N"
+OP   : 12
+CONST: "O"
+OP   : 12
+CONST: "P"
+OP   : 12
+CONST: "Q"
+OP   : 12
+CONST: "R"
+OP   : 12
+CONST: "S"
+OP   : 12
+CONST: "T"
+OP   : 12
+CONST: "U"
+OP   : 12
+CONST: "V"
+OP   : 12
+CONST: "W"
+OP   : 12
+CONST: "X"
+OP   : 12
+CONST: "Y"
+OP   : 12
+CONST: "Z"
+OP   : 12
+CONST: "a"
+OP   : 12
+CONST: "b"
+OP   : 12
+CONST: "c"
+OP   : 12
+CONST: "d"
+OP   : 12
+CONST: "e"
+OP   : 12
+CONST: "f"
+OP   : 12
+CONST: "g"
+OP   : 12
+CONST: "h"
+OP   : 12
+CONST: "i"
+OP   : 12
+CONST: "j"
+OP   : 12
+CONST: "k"
+OP   : 12
+CONST: "l"
+OP   : 12
+CONST: "m"
+OP   : 12
+CONST: "n"
+OP   : 12
+CONST: "o"
+OP   : 12
+CONST: "p"
+OP   : 12
+CONST: "q"
+OP   : 12
+CONST: "r"
+OP   : 12
+CONST: "s"
+OP   : 12
+CONST: "t"
+OP   : 12
+CONST: "u"
+OP   : 12
+CONST: "v"
+OP   : 12
+CONST: "w"
+OP   : 12
+CONST: "x"
+OP   : 12
+CONST: "y"
+OP   : 12
+CONST: "z"
+END RULE 
