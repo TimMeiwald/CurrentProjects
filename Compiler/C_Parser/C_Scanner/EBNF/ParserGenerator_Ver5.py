@@ -81,6 +81,8 @@ class EBNFParserGenerator():
         #########################################################
         # HANDLE REPETITION, SOMEHOW RECURSION OR SPLIT INTO BNF#
         #########################################################
+        #AUTO SPLIT EBNF REPS TO BNF WOULD WORK DO IT BEFORE EVERYTHING ELSE
+        #AND IT SHOULD BE SOLVED
     def StartRule(self,Rule):
         if(Rule[0][0] == "VAR" and Rule[1] == ("OP",11)):
             self.WriteToResultStringIndented("\ndef Rule_{}(Tokens):".format(Rule[0][1]))
