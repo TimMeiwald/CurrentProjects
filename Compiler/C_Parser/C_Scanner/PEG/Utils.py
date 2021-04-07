@@ -98,7 +98,10 @@ def NextSpecialChar(String):
             return "AndPredicate"
         if(i == "!" and EitherOrFlag == False):
             return "NotPredicate"
+        if(i == "{" and EitherOrFlag == False):
+            return "Instruction" 
         if(Whitespace == 1):
             return "Sequence"
    
     return "Terminal"
+

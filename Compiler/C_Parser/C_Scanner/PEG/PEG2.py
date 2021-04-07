@@ -24,18 +24,20 @@ class PEG():
     
     def evalExpression(self,expression):
         ruleType = U.NextSpecialChar(expression)
+        # print("{}: {}".format(ruleType,expression))
         eval("self." + ruleType + "('{}')".format(expression))
-    
+        return 0  
     
     def Terminal(self,expression):
-        if(expression == "ENDMARKER" or expression == ""):
+        if(expression == ""):
             return 0
         else:
             NewRule = U.SearchForRule(self.grammar, expression+":")
             if(NewRule == "No Rule"):
-                print("TERMINAL: {}".format(expression))
+                # print("TERMINAL: {}".format(expression))
                 return 0
             self.Rule(NewRule)
+            return 0
     
     def Grammar(self):
         """Grammar consists of sequence of rules, 
@@ -48,9 +50,8 @@ class PEG():
         """Exact pattern required 'rule_name: expression' ."""
         name, expression = U.SplitByString(rule,":")
         if(name in self.KnownRules):
-            print("    Rule_{}(expression)".format(name))
+            # print("VAR: {}".format(rule) )
             return 0
-        print("def Rule_{}(expression):".format(name))
         self.KnownRules[name] = expression
         self.evalExpression(expression)
        
@@ -60,42 +61,55 @@ class PEG():
         pass
     
     def Sequence(self,expression):
-        #print("it got here")
+        """Split sequence and then evaluate both new expressions"""
         expr1, expr2 = U.SplitByString(expression," ")
-        print("    Rule_{}(expression)".format(expr1))
         Result1 = self.evalExpression(expr1)
         Result2 = self.evalExpression(expr2)
+        if(Result1 == 0 and Result2 == 0):
+            # print("Sequence")
+            return 0
+        else:
+            return -1
     
     def OrderedChoice(self,expression):
+        """Check whether either sequence returns true in order then evaluate"""
         expr1, expr2 = U.SplitByString(expression, "|")
-        #print("ORDEREDCHOICE:",expr1)
-        self.evalExpression(expr1)
+        
+        Result = self.evalExpression(expr1)
         self.evalExpression(expr2)
+        if(Result == 0):
+            # print("Choice 1")
+            return Result
+        elif(self.evalExpression(expr2) == 0):
+            #print("Choice 2")
+            return self.evalExpression(expr2)
         
     def ZeroOrMore(self,expression):
         expr1, expr2 = U.SplitByString(expression,"*")
-        #print("ZEROORMORE:",expr1)
+        # print("ZEROORMORE:",expr1)
         self.evalExpression(expr1)
         self.evalExpression(expr2)
-        
-        
+    
     def OneOrMore(self,expression):
         expr1, expr2 = U.SplitByString(expression,"+")
-        #print("ONEORMORE:",expr1)
+        # print("One or More: {}".format(expression))
         self.evalExpression(expr1)
         self.evalExpression(expr2)
     
     
     def Optional(self,expression):
         expr1, expr2 = U.SplitByString(expression[1:],"]")
-        print("if({} == True".format(expr1))
-        self.evalExpression(expr1)
-        print("if({} == True".format(expr2))
-        self.evalExpression(expr2)
-    
+        Result1 = self.evalExpression(expr1)
+        Result2 = self.evalExpression(expr2)
+        if(Result1 == 0):
+            return Result1
+        elif(Result2 == 0):
+            return Result2
+        else:
+            return -1
     
     def AndPredicate(self):
-        #Succeed if e can be parsed, without consuming any input.
+        # Succeed if e can be parsed, without consuming any input.
         pass
     
     
@@ -103,6 +117,9 @@ class PEG():
         #Fail if e can be parsed, without consuming any input.
         pass
     
+    def Instruction(self,expression):
+        expr1, expr2 = U.SplitByString(expression[1:],"}")
+        print(expr1)
     
 class PEG_Test():
     

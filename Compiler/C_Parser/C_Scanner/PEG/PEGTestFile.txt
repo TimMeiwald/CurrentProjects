@@ -1,11 +1,10 @@
-start: rules ENDMARKER
-rules: rule rules | rule
-rule: NAME ":" alts NEWLINE
-alts: alt "|" alts | alt
-alt: items
-items: item items | item
-item: NAME | STRING
-NAME: Char+ 
-STRING: Char+
-Char: "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
+start: rules 
+rules: rule rules | rule 
+rule: NAME ":" alts NEWLINE 
+alts: alt "|" alts | alt 
+alt: items 
+items: item items | item 
+item: NAME | STRING 
+Char: "A" | "B" | "C" | "D"
+NEWLINE: "\n"
 
