@@ -1,0 +1,236 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Apr  7 15:20:27 2021
+
+@author: tim
+"""
+
+import Utils as U
+
+        
+class PEG():
+    """ Parsing rule A <- e where A is unique name and e is a clause
+    each clause is composed of subclauses, terminals  and rule references
+    terminals or rule references form non-leaf nodes, with PEG operators
+    forming the leaf nodes 
+    
+    Needs to handle testing if something is a terminal, rulereference or a 
+    complex expression, where a complex expression is some combination of 
+    the below PEG operators
+    
+    Sequence
+    First(otherwise known as ordered choice): match first valid choice
+    OneOrMore: Repeat rule reference/terminal/subexpression or or more times
+    NotFollowedBy: Matches if subexpressions does not match but does not consume
+    tokens
+    
+    The following peg 'operators' can be composed of the previous 4
+    FollowedBy: TODO
+    Optional: TODO
+    ZeroOrMore: TODO 
+    
+    
+    I have used "expression" to describe arbitrary input that will be tested
+    while "clause" describes the rule the expression needs to be tested
+    against
+    """
+    
+    def __init__(self, debug = False):
+               
+        def CreateLetter():
+            """Creates list of characters ["A","B", ... , "y" , "z"] """
+            Letter = []
+            # Upper case A-Z
+            for i in range(65, 91):
+                Letter.append(chr(i))
+            # Lower case a-z
+            
+            for i in range(97, 123):
+                Letter.append(chr(i))
+            return Letter
+        
+        def CreateDigit():
+            """ Creates list of strings ["0", ... , "9"] """
+            Digit = []
+            for i in range(48, 58):
+                Digit.append(chr(i))
+            return Digit
+        
+        self.character = CreateLetter()
+        self.digit = CreateDigit()
+        if(debug):
+            self.UnitTest()
+    
+    def Terminal(self, expression):
+        """Terminal iff "Char*" where Char any individual ascii character or
+        empty string epsilon and
+        * means one or more of the expression to the left"""
+        if(expression[0] == "'" and expression [-1] == "'"):
+            print("TERMINAL:", expression)
+            return 0
+        elif(expression[0] == '"' and expression [-1] == '"'):
+            print("TERMINAL:", expression)
+            return 0
+        else:
+            return -1
+        
+    def RuleReference(self, expression):
+        """Rule reference valid iff Char, {Char | Digit} in EBNF
+        Basically must start with one char then be followed by any number of
+        digits [0-9] or symbols [Aa-Zz], MUST NOT CONTAIN any spaces or
+        reserved symbols | * + etc"""
+        Length = len(expression)
+        if(expression == ""):
+            return -1
+        if(expression[0] not in self.character):
+            return -1
+        if(Length == 1):
+            print("Rule Reference", expression)
+            return 0
+        count = 1
+        while(expression[count] in self.character or expression[count] in self.digit):
+            count += 1
+            if(count >= Length):
+                break
+        if(count != Length):
+            return -1
+        else:
+            print("Rule Reference", expression)
+            return 0
+        
+    def Sequence(self, expression, clause):
+        """ASeqclause (termed by FordSequence[16]) matches the input at a
+        given start position if all of its subclausesmatch the input in order,
+        with the first subclause match starting at the initial start position,
+        and each subsequentsubclause match starting immediately after the
+        previous subclause match. Matching stops if a single subclause fails
+        to match the input at its start position.
+        Takes clause as a list of subclauses so e.g Baz = A B C would be ["A", "B", "C"]
+        and match with ABC
+        """
+        
+        substring = ""
+        count = 0
+        for i in expression:
+            substring += i
+            if(substring == clause[count]):
+                substring = ""
+                count += 1
+        
+        if(substring != ""):
+            return -1
+        else:
+            return 0
+            
+        
+    def First(self, expression, clause):
+        """Matches if any of it's subclauses matches, sequentially attempts
+        left to right.
+        
+        Clause is also a list of the subclauses
+        can be considered the same as
+        sequentially attempting the expression using Sequence with each subclause
+        since it will give a match if the single clause matches, and otherwise
+        return nothing """
+        pass
+    
+    def OneOrMore(self, expression, clause):
+        substring = ""
+        tokensConsumed = 0
+        for i in expression:
+            substring += i
+            if(substring == clause):
+                tokensConsumed += len(substring)
+                substring = ""
+                continue
+            if(len(substring) >= len(clause) or substring == ""):
+                break
+        if(tokensConsumed == 0):
+            return -1
+        return 0, tokensConsumed
+        
+    def ZeroOrMore(self, expression, clause):
+        """Same as one or more with First using empty string"""
+        pass
+    
+    def Optional(self, expression, clause):
+        """Optional is the same as First with empty string as an option"""
+        clause = clause.append("")
+        return self.First(expression, clause)
+    
+    def NotFollowedBy(self, expression, clause):
+        if(expression != clause):
+            return 0, 0
+        else:
+            return -1
+    
+    def FollowedBy(self, expression, clause):
+        if(expression == clause):
+            return 0, 0
+        else:
+            return -1
+                
+    def UnitTest(self):
+        
+        Test = PEG()
+        if(Test.Terminal("'A'") != 0):
+            raise Exception("Test: PEG.Terminal Number 1 Failed")
+        if(Test.Terminal('"A"') != 0):
+            raise Exception("Test: PEG.Terminal Number 2 Failed")
+        if(Test.Terminal("''") != 0):
+            raise Exception("Test: PEG.Terminal Number 3 Failed")
+        if(Test.Terminal('""') != 0):
+            raise Exception("Test: PEG.Terminal Number 4 Failed")
+        if(Test.Terminal("'Haha'") != 0):
+            raise Exception("Test: PEG.Terminal Number 5 Failed")
+        if(Test.Terminal('"Haha"') != 0):
+            raise Exception("Test: PEG.Terminal Number 6 Failed")
+        if(Test.Terminal("Whatever") != -1):
+            raise Exception("Test: PEG.Terminal Number 7 Failed")
+        if(Test.Terminal('Whatever') != -1):
+            raise Exception("Test: PEG.Terminal Number 8 Failed")
+        print("PEG.Terminal Tests passed")
+        
+        if(Test.RuleReference("") != -1):
+            raise Exception("Test: PEG.RuleReference Number 1 Failed")
+        if(Test.RuleReference('A') != 0):
+            raise Exception("Test: PEG.RuleReference Number 2 Failed")
+        if(Test.RuleReference("AbC") != 0):
+            raise Exception("Test: PEG.RuleReference Number 3 Failed")
+        if(Test.RuleReference('AbC93Ahe') != 0):
+            raise Exception("Test: PEG.RuleReference Number 4 Failed")
+        if(Test.RuleReference("Abc ahea") != -1):
+            raise Exception("Test: PEG.RuleReference Number 5 Failed")
+        if(Test.RuleReference('"Haha"') != -1):
+            raise Exception("Test: PEG.RuleReference Number 6 Failed")
+        if(Test.RuleReference("Whatever") != 0):
+            raise Exception("Test: PEG.RuleReference Number 7 Failed")
+        if(Test.RuleReference('Whatever') != 0):
+            raise Exception("Test: PEG.RuleReference Number 8 Failed")
+        print("PEG.Reference Tests passed")
+        
+        if(Test.Sequence("A9BChar", ["A", "9", "B", "Char"]) != 0):
+            raise Exception("Test: PEG.Sequence Number 1 Failed")
+        if(Test.Sequence("", [""]) != 0):
+            raise Exception("Test: PEG.Sequence Number 2 Failed")
+        if(Test.Sequence("A9BChar", ["A", "9", "C", "Char"]) != -1):
+            raise Exception("Test: PEG.Sequence Number 3 Failed")
+        print("TESTS USING RULES FOR SEQUENCE STILL REQUIRED")
+        #TODO WRITE TESTS THAT USE RULES CAN'T DO YET BECAUSE IT DOESN'T KNOW THEM
+    
+        if(Test.OneOrMore("AAAA","A") != (0,4)):
+            raise Exception("Test: PEG.OneOrMore Number 1 Failed")
+        if(Test.OneOrMore("AAAA","B") != -1):
+            raise Exception("Test: PEG.OneOrMore Number 2 Failed")
+        if(Test.OneOrMore("","A") != -1):
+            raise Exception("Test: PEG.OneOrMore Number 3 Failed")
+        if(Test.OneOrMore(" ", " ") != (0,1)):
+            raise Exception("Test: PEG.OneOrMore Number 4 Failed")
+        #TODO WRITE TESTS USING RULES 
+        print("TESTS USING RULES FOR OneOrMore STILL REQUIRED")
+        print("PEG.OneOrMore Tests passed")
+    
+    
+PEG(debug = True)
+
