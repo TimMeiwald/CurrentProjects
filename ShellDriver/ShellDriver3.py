@@ -20,6 +20,7 @@ class ShellDriver():
     """
     
     def __init__(self, ID):
+        self.ID = ID  # Merely, to allow for distinguishing multiple instances
         self.KILL = False
         self.output = []
         self.queue = queue.SimpleQueue()
